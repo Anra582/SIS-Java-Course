@@ -8,6 +8,7 @@ import io.github.bael.spring.data.data.BooksSpecification;
 import io.github.bael.spring.data.entity.Author;
 import io.github.bael.spring.data.entity.AuthorOfBook;
 import io.github.bael.spring.data.entity.Book;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -81,12 +82,20 @@ public class BookServiceImplTest {
 
     }
 
+    @After
+    public void clean() {
+        authorOfBookRepository.deleteAll();
+        authorRepository.deleteAll();
+        bookRepository.deleteAll();
+    }
+
     @Test
     public void testCreation() {
         boolean founded = false;
         for (Book book : bookRepository.findAll()) {
             if (book.getTitle().contains("Тома Сойера")) {
                 founded = true;
+                break;
             }
 
         }
