@@ -3,6 +3,7 @@ package io.github.bael.spring.data.service;
 import io.github.bael.spring.data.SpringDataApplication;
 import io.github.bael.spring.data.entity.Book;
 import io.github.bael.spring.data.entity.Customer;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringDataApplication.class)
@@ -20,62 +21,54 @@ public class BookStoreServiceImplTest {
     @Autowired
     private BookStoreService bookStoreService;
 
+    private Book boringBook;
+    private Book amazingBook;
+    private Customer customerRick;
+    private Customer customerMorty;
+
+    @Before
+    public void init() {
+        boringBook = new Book();
+        boringBook.setDescription("Boring description of book");
+        boringBook.setTitle("Boring title");
+        boringBook.setYear(2007);
+        bookStoreService.save(boringBook);
+
+        amazingBook = new Book();
+        amazingBook.setDescription("Amazing description of book");
+        amazingBook.setTitle("Amazing title");
+        amazingBook.setYear(1897);
+        bookStoreService.save(amazingBook);
+
+        customerRick = new Customer();
+        customerRick.setName("Rick");
+        customerRick.setAddress("Universe");
+        bookStoreService.save(customerRick);
+
+        customerMorty = new Customer();
+        customerMorty.setName("Morty");
+        customerMorty.setAddress("Universe");
+        bookStoreService.save(customerMorty);
+    }
+
     @Test
     public void calcSalesOfBook() {
-        Book book = new Book();
-        book.setDescription("Description book");
-        book.setTitle("Title book");
-        book.setYear(2007);
-        bookStoreService.save(book);
-
-        Customer customer = new Customer();
-        customer.setName("Rick");
-        customer.setAddress("Universe");
-        bookStoreService.save(customer);
-
-        Customer customer2 = new Customer();
-        customer.setName("Morty");
-        customer.setAddress("Universe");
-        bookStoreService.save(customer2);
 
         BigDecimal priceOld = BigDecimal.valueOf(500);
         BigDecimal priceNew = BigDecimal.valueOf(399.99);
         BigDecimal expectedTotal = priceOld.add(priceNew);
 
-        bookStoreService.makeDeal(customer, book, priceOld);
-        bookStoreService.makeDeal(customer2, book, priceNew);
+        bookStoreService.makeDeal(customerRick, amazingBook, priceOld);
+        bookStoreService.makeDeal(customerMorty, amazingBook, priceNew);
 
-        BigDecimal actualTotal = bookStoreService.calcSalesOfBook(book);
-
-        System.out.println(actualTotal);
+        BigDecimal actualTotal = bookStoreService.calcSalesOfBook(amazingBook);
 
         assertEquals(expectedTotal, actualTotal);
 
     }
 
     @Test
-    public void calcCustomerTotalPurchases() {
-        Book boringBook = new Book();
-        boringBook.setDescription("Boring description of book");
-        boringBook.setTitle("Boring title");
-        boringBook.setYear(2007);
-        bookStoreService.save(boringBook);
-
-        Book amazingBook = new Book();
-        amazingBook.setDescription("Amazing description of book");
-        amazingBook.setTitle("Amazing title");
-        amazingBook.setYear(1897);
-        bookStoreService.save(amazingBook);
-
-        Customer customerRick = new Customer();
-        customerRick.setName("Rick");
-        customerRick.setAddress("Universe");
-        bookStoreService.save(customerRick);
-
-        Customer customerMorty = new Customer();
-        customerRick.setName("Morty");
-        customerRick.setAddress("Universe");
-        bookStoreService.save(customerMorty);
+    public void calcPurchasesByCustomer() {
 
         BigDecimal priceOfAmazingBook = BigDecimal.valueOf(1445.30);
         BigDecimal priceOfBoringBook = BigDecimal.valueOf(799.99);
@@ -85,8 +78,6 @@ public class BookStoreServiceImplTest {
         bookStoreService.makeDeal(customerRick, boringBook, priceOfBoringBook);
 
         BigDecimal actualTotal = bookStoreService.calcPurchasesByCustomer(customerRick);
-
-        System.out.println(actualTotal);
 
         assertEquals(expectedTotal, actualTotal);
     }
